@@ -12,17 +12,21 @@ import java.util.HashMap;
 public class Main {
     public Main() throws Exception{
 
-        QueueConsumer consumer = new QueueConsumer("queue");
-        Thread consumerThread = new Thread(consumer);
-        consumerThread.start();
+        int count = 1024;
+        for (int i = 0 ; i<count; i++){
+            QueueConsumer consumer = new QueueConsumer(i);
+            Thread consumerThread = new Thread(consumer);
+            consumerThread.start();
+        }
 
-        Producer producer = new Producer("queue");
-
-        for (int i = 0; i < 1; i++) {
-            HashMap message = new HashMap();
-            message.put("message number", i);
-            producer.sendMessage(message);
-            System.out.println("Message Number "+ i +" sent.");
+        for (int j = 0 ; j < count; j++) {
+            Producer producer = new Producer(j);
+            for (int i = 0; i < 1; i++) {
+                HashMap message = new HashMap();
+                message.put("message number", i);
+                producer.sendMessage(message);
+                System.out.println("routingkey is "+j+" Message Number "+ i +" sent.");
+            }
         }
     }
 

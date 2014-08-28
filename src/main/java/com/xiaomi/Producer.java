@@ -13,12 +13,12 @@ import java.io.Serializable;
  * To change this template use File | Settings | File Templates.
  */
 public class Producer extends EndPoint {
-    public Producer(String endPointName) throws IOException {
-        super(endPointName);
+    public Producer(int routingKey) throws IOException {
+        super(routingKey);
     }
 
     public void sendMessage(Serializable object) throws IOException {
-        channel.basicPublish("",endPointName, null, SerializationUtils.serialize(object));
+        channel.basicPublish("","--"+routingKey%partition+"", null, SerializationUtils.serialize(object));
     }
 
 }

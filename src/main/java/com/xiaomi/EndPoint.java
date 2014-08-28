@@ -1,5 +1,6 @@
 package com.xiaomi;
 
+import com.rabbitmq.client.Address;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
@@ -16,28 +17,31 @@ import java.io.IOException;
 
 public abstract class EndPoint{
 
+    protected int partition = 1024;
     protected Channel channel;
     protected Connection connection;
-    protected String endPointName;
+    protected int routingKey;
 
-    public EndPoint(String endpointName) throws IOException{
-        this.endPointName = endpointName;
+    public EndPoint(int routingKey) throws IOException{
+        this.routingKey = routingKey;
 
         //Create a connection factory
         ConnectionFactory factory = new ConnectionFactory();
 
-        //hostname of your rabbitmq server
-        factory.setHost("10.237.12.2");
+        Address[] addrArr = new Address[]{ new Address("10.237.12.1"), new Address("10.237.12.2")};
+        //Connection conn = factory.newConnection(addrArr);
 
         //getting a connection
-        connection = factory.newConnection();
+        connection = factory.newConnection(addrArr);
 
         //creating a channel
         channel = connection.createChannel();
 
         //declaring a queue for this channel. If queue does not exist,
         //it will be created on the server.
-        channel.queueDeclare(endpointName, false, false, false, null);
+            channel.queueDeclare("--"+routingKey%partition+"", false, false, true, null);
+
+        channel.basicQos(10);
     }
 
 

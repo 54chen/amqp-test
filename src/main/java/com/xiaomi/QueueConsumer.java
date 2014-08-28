@@ -15,14 +15,14 @@ import java.util.Map;
  * To change this template use File | Settings | File Templates.
  */
 public class QueueConsumer extends EndPoint implements Runnable, Consumer {
-    public QueueConsumer(String endPointName) throws IOException {
-        super(endPointName);
+    public QueueConsumer(int routingKey) throws IOException {
+        super(routingKey);
     }
 
     public void run() {
         try {
             //start consuming messages. Auto acknowledge messages.
-            channel.basicConsume(endPointName, true,this);
+            channel.basicConsume("--"+routingKey%partition+"", true,this);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -39,7 +39,7 @@ public class QueueConsumer extends EndPoint implements Runnable, Consumer {
     public void handleDelivery(String consumerTag, Envelope env,
                                AMQP.BasicProperties props, byte[] body) throws IOException {
         Map map = (HashMap) SerializationUtils.deserialize(body);
-        System.out.println("Message Number "+ map.get("message number") + " received.");
+        System.out.println("routingkey:" + routingKey + " Message Number "+ map.get("message number") + " received.");
     }
 
     public void handleCancel(String consumerTag) {}
